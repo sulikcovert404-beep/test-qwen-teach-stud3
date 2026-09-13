@@ -221,18 +221,18 @@ function AppRoutes() {
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20">
-      <div className="w-20 h-20 bg-soft-pink rounded-3xl flex items-center justify-center mb-4">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary-pink">
+      <div className="w-20 h-20 bg-mint rounded-3xl flex items-center justify-center mb-4">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-dark-green">
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <path d="M3 9h18" />
           <path d="M9 21V9" />
         </svg>
       </div>
       <h2 className="text-xl font-bold text-navy mb-2">{title}</h2>
-      <p className="text-gray-500 text-center max-w-md">
+      <p className="text-secondary-text text-center max-w-md">
         این بخش در حال توسعه است. در نسخه نهایی، تمام قابلیت‌های مدیریتی و عملیاتی در اینجا در دسترس خواهد بود.
       </p>
-      <div className="mt-6 bg-soft-yellow border border-soft-yellow rounded-2xl px-4 py-3">
+      <div className="mt-6 bg-soft-yellow border border-border rounded-2xl px-4 py-3">
         <p className="text-sm text-orange">
           🔧 فاز توسعه: اتصال به API و پیاده‌سازی کامل در مراحل بعدی
         </p>
