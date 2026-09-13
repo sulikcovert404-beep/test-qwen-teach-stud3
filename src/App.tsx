@@ -2,11 +2,13 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import DashboardLayout from './components/DashboardLayout';
+import NewDashboardLayout from './components/NewDashboardLayout';
 import LoginPage from './pages/LoginPage';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PlatformDashboard from './pages/PlatformDashboard';
+import NewDashboardHome from './pages/NewDashboardHome';
 import AITutor from './pages/AITutor';
 import AssignmentsPage from './pages/AssignmentsPage';
 import ExamsPage from './pages/ExamsPage';
@@ -99,20 +101,28 @@ function AppRoutes() {
         <Route path="settings" element={<PlaceholderPage title="تنظیمات" />} />
       </Route>
 
-      {/* Platform (Super Admin) Routes */}
+      {/* Platform (Super Admin) Routes — New Design */}
       <Route
         path="/platform"
         element={
           <ProtectedRoute>
-            <DashboardLayout />
+            <NewDashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<PlatformDashboard />} />
-        <Route path="tenants" element={<PlaceholderPage title="مستأجران" />} />
+        <Route index element={<NewDashboardHome />} />
+        <Route path="subscribers" element={<PlaceholderPage title="مشترکان" />} />
         <Route path="schools" element={<PlaceholderPage title="مدارس" />} />
         <Route path="users" element={<PlaceholderPage title="کاربران" />} />
         <Route path="plans" element={<PlaceholderPage title="طرح‌ها" />} />
+        <Route path="content" element={<PlaceholderPage title="محتوا و درس‌ها" />} />
+        <Route path="exams" element={<PlaceholderPage title="آزمون‌ها" />} />
+        <Route path="assignments" element={<PlaceholderPage title="تکالیف" />} />
+        <Route path="ai" element={<PlaceholderPage title="کمک آموزشی AI" />} />
+        <Route path="reports" element={<PlaceholderPage title="گزارش‌ها" />} />
+        <Route path="settings" element={<PlaceholderPage title="تنظیمات" />} />
+        <Route path="support" element={<PlaceholderPage title="پشتیبانی" />} />
+        <Route path="tenants" element={<PlaceholderPage title="مستأجران" />} />
         <Route path="ai-usage" element={<PlaceholderPage title="مصرف AI" />} />
         <Route path="feature-flags" element={<PlaceholderPage title="پرچم ویژگی" />} />
         <Route path="audit" element={<PlaceholderPage title="ممیزی" />} />
@@ -211,19 +221,19 @@ function AppRoutes() {
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20">
-      <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-400">
+      <div className="w-20 h-20 bg-soft-pink rounded-3xl flex items-center justify-center mb-4">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary-pink">
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <path d="M3 9h18" />
           <path d="M9 21V9" />
         </svg>
       </div>
-      <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
+      <h2 className="text-xl font-bold text-navy mb-2">{title}</h2>
       <p className="text-gray-500 text-center max-w-md">
         این بخش در حال توسعه است. در نسخه نهایی، تمام قابلیت‌های مدیریتی و عملیاتی در اینجا در دسترس خواهد بود.
       </p>
-      <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-        <p className="text-sm text-amber-700">
+      <div className="mt-6 bg-soft-yellow border border-soft-yellow rounded-2xl px-4 py-3">
+        <p className="text-sm text-orange">
           🔧 فاز توسعه: اتصال به API و پیاده‌سازی کامل در مراحل بعدی
         </p>
       </div>
