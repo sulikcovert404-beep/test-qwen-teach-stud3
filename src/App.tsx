@@ -23,6 +23,7 @@ import MiniAppPage from './pages/MiniAppPage';
 import PaywallPage from './pages/PaywallPage';
 import NotificationsPage from './pages/NotificationsPage';
 import TelegramIntegrationGuide from './pages/TelegramIntegrationGuide';
+import GeminiSetupPage from './pages/GeminiSetupPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -187,6 +188,17 @@ function AppRoutes() {
         }
       >
         <Route index element={<TelegramIntegrationGuide />} />
+      </Route>
+
+      <Route
+        path="/gemini-setup"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<GeminiSetupPage />} />
       </Route>
 
       {/* Default redirect */}

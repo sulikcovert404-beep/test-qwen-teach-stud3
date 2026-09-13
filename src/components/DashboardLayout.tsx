@@ -202,6 +202,23 @@ export default function DashboardLayout() {
               <Bot size={20} />
               <span>راهنمای تلگرام</span>
             </button>
+            <button
+              onClick={() => {
+                navigate('/gemini-setup');
+                setSidebarOpen(false);
+              }}
+              className={`
+                w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+                transition-all duration-200
+                ${location.pathname === '/gemini-setup'
+                  ? `bg-gradient-to-l ${roleColor} text-white shadow-md`
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                }
+              `}
+            >
+              <Sparkles size={20} />
+              <span>تنظیم Gemini AI</span>
+            </button>
           </div>
         </nav>
 
