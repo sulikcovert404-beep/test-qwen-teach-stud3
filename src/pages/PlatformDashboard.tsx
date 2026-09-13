@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useApi } from '../hooks/useApi';
+import { statsApi, tenantApi } from '../backend/api';
 import {
   Building2, School, Users, CreditCard, Zap, Flag,
   Shield, Server, Eye, Activity, CheckCircle2,
@@ -12,7 +14,30 @@ export default function PlatformDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch stats from API
+  const { data: stats, loading: loadingStats } = useApi(
+    () => statsApi.getPlatformStats(),
+    [user?.id]
+  );
+
+  const { data: tenants, loading: loadingTenants } = useApi(
+    () => tenantApi.getAll(),
+    [user?.id]
+  );
+
   if (!user) return null;
+
+  const safeStats = stats || {
+    totalTenants: 0,
+    totalSchools: 0,
+    totalTeachers: 0,
+    totalStudents: 0,
+    activeSubscriptions: 0,
+    aiCallsToday: 0,
+    systemHealth: 'healthy',
+  };
+
+  const safeTenants = tenants || [];
 
   return (
     <div className="space-y-6">
@@ -32,10 +57,10 @@ export default function PlatformDashboard() {
 
       {/* Platform Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<Building2 size={20} />} label="مستأجران" value="۱۲" color="bg-rose-50 text-rose-600" />
-        <StatCard icon={<School size={20} />} label="مدارس" value="۴۸" color="bg-blue-50 text-blue-600" />
-        <StatCard icon={<Users size={20} />} label="کاربران" value="۱۲,۴۵۰" color="bg-emerald-50 text-emerald-600" />
-        <StatCard icon={<CreditCard size={20} />} label="اشتراک فعال" value="۳۸" color="bg-amber-50 text-amber-600" />
+        <StatCard icon={<Building2 size={20} />} label="مستأجران" value={loadingStats ? '...' : safeStats.totalTenants.toString()} color="bg-rose-50 text-rose-600" />
+        <StatCard icon={<School size={20} />} label="مدارس" value={loadingStats ? '...' : safeStats.totalSchools.toString()} color="bg-blue-50 text-blue-600" />
+        <StatCard icon={<Users size={20} />} label="کاربران" value={loadingStats ? '...' : (safeStats.totalTeachers + safeStats.totalStudents).toLocaleString('fa-IR')} color="bg-emerald-50 text-emerald-600" />
+        <StatCard icon={<CreditCard size={20} />} label="اشتراک فعال" value={loadingStats ? '...' : safeStats.activeSubscriptions.toString()} color="bg-amber-50 text-amber-600" />
       </div>
 
       {/* Quick Actions */}
@@ -91,27 +116,48 @@ export default function PlatformDashboard() {
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Building2 size={20} className="text-purple-500" />
-          مستأجران اخیر
+          مستأجران
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-gray-500 border-b border-gray-100">
-                <th className="text-right py-3 px-2 font-medium">نام</th>
-                <th className="text-right py-3 px-2 font-medium">طرح</th>
-                <th className="text-right py-3 px-2 font-medium">مدارس</th>
-                <th className="text-right py-3 px-2 font-medium">کاربران</th>
-                <th className="text-right py-3 px-2 font-medium">وضعیت</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              <TenantRow name="آموزش و پرورش منطقه ۱" plan="سازمانی" schools="۱۲" users="۳,۲۰۰" status="active" />
-              <TenantRow name="مؤسسه فرهنگی نور" plan="مدرسه" schools="۳" users="۸۵۰" status="active" />
-              <TenantRow name="دبیرستان‌های غیرانتفاعی پارس" plan="مدرسه" schools="۵" users="۱,۴۰۰" status="active" />
-              <TenantRow name="محیط آزمایشی" plan="آزمایشی" schools="۱" users="۲۵" status="suspended" />
-            </tbody>
-          </table>
-        </div>
+        
+        {loadingTenants ? (
+          <div className="text-center py-8 text-gray-400">در حال بارگذاری...</div>
+        ) : safeTenants.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <Building2 size={48} className="mx-auto mb-2 opacity-30" />
+            <p>هنوز مستأجری ثبت نشده است.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-500 border-b border-gray-100">
+                  <th className="text-right py-3 px-2 font-medium">نام</th>
+                  <th className="text-right py-3 px-2 font-medium">طرح</th>
+                  <th className="text-right py-3 px-2 font-medium">وضعیت</th>
+                  <th className="text-right py-3 px-2 font-medium">تاریخ ایجاد</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {safeTenants.map((tenant) => (
+                  <tr key={tenant.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-2 font-medium text-gray-900">{tenant.name}</td>
+                    <td className="py-3 px-2 text-gray-600">{tenant.plan}</td>
+                    <td className="py-3 px-2">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        tenant.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                        {tenant.status === 'active' ? 'فعال' : 'معلق'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-2 text-gray-500">
+                      {new Date(tenant.createdAt).toLocaleDateString('fa-IR')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Feature Flags */}
@@ -188,26 +234,6 @@ function UsageRow({ label, calls, cost }: { label: string; calls: number; cost: 
         <span className="text-xs font-medium text-gray-700 bg-gray-100 px-2 py-0.5 rounded">{cost}</span>
       </div>
     </div>
-  );
-}
-
-function TenantRow({ name, plan, schools, users, status }: {
-  name: string; plan: string; schools: string; users: string; status: string;
-}) {
-  return (
-    <tr className="hover:bg-gray-50 transition-colors">
-      <td className="py-3 px-2 font-medium text-gray-900">{name}</td>
-      <td className="py-3 px-2 text-gray-600">{plan}</td>
-      <td className="py-3 px-2 text-gray-600">{schools}</td>
-      <td className="py-3 px-2 text-gray-600">{users}</td>
-      <td className="py-3 px-2">
-        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-          status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-        }`}>
-          {status === 'active' ? 'فعال' : 'معلق'}
-        </span>
-      </td>
-    </tr>
   );
 }
 

@@ -99,11 +99,15 @@ npm run preview
 - [x] Prototype فرانت‌اند (React + Tailwind + RTL)
 - [x] ۴ داشبورد مجزا برای ۴ نقش
 - [x] Role-based routing
-- [ ] Backend API (FastAPI + PostgreSQL)
+- [x] **Mock Backend** (localStorage + API Client)
+- [x] **Tenant Isolation** کامل
+- [x] **Role-Based Access Control**
+- [x] **Data Persistence** (داده‌ها ذخیره می‌شوند)
+- [x] **AI Integration** (Mock)
+- [ ] Backend واقعی (FastAPI + PostgreSQL)
 - [ ] Authentication واقعی (JWT)
 - [ ] Telegram Bot Adapter
-- [ ] AI Gateway واقعی
-- [ ] Tenant Isolation + RLS
+- [ ] AI Gateway واقعی (OpenAI/Gemini)
 - [ ] تست‌های کامل
 
 📊 مشاهده نقشه راه کامل: از داخل پروژه → sidebar → **نقشه راه پروژه**

@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useApiList } from '../hooks/useApi';
+import { classroomApi, assignmentApi } from '../backend/api';
 import {
   School, Users, FileText, ClipboardList, BarChart3,
   Sparkles, Trophy, MessageSquare, Plus, TrendingUp,
@@ -11,7 +13,22 @@ export default function TeacherDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch data from API
+  const { data: classrooms, loading: loadingClasses } = useApiList(
+    () => classroomApi.getAll(),
+    [user?.id]
+  );
+
+  const { data: assignments, loading: loadingAssignments } = useApiList(
+    () => assignmentApi.getAll(),
+    [user?.id]
+  );
+
   if (!user) return null;
+
+  const safeClassrooms = classrooms || [];
+  const safeAssignments = assignments || [];
+  const activeAssignments = safeAssignments.filter(a => a.status === 'published').length;
 
   return (
     <div className="space-y-6">
@@ -20,7 +37,9 @@ export default function TeacherDashboard() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-bold mb-2">سلام {user.name} 👋</h1>
-            <p className="text-emerald-100">امروز ۳ کلاس فعال و ۲ تکلیف جدید برای بررسی دارید.</p>
+            <p className="text-emerald-100">
+              امروز {safeClassrooms.length} کلاس فعال و {activeAssignments} تکلیف جدید دارید.
+            </p>
           </div>
           <button
             onClick={() => navigate('/teacher-dashboard/exam-builder')}
@@ -34,9 +53,9 @@ export default function TeacherDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<School size={20} />} label="کلاس‌های فعال" value="۳" color="bg-emerald-50 text-emerald-600" />
+        <StatCard icon={<School size={20} />} label="کلاس‌های فعال" value={safeClassrooms.length.toString()} color="bg-emerald-50 text-emerald-600" />
         <StatCard icon={<Users size={20} />} label="دانش‌آموزان" value="۸۷" color="bg-blue-50 text-blue-600" />
-        <StatCard icon={<FileText size={20} />} label="تکالیف فعال" value="۵" color="bg-amber-50 text-amber-600" />
+        <StatCard icon={<FileText size={20} />} label="تکالیف فعال" value={activeAssignments.toString()} color="bg-amber-50 text-amber-600" />
         <StatCard icon={<Trophy size={20} />} label="میانگین کلاس" value="۱۶.۸" color="bg-purple-50 text-purple-600" />
       </div>
 
@@ -78,11 +97,74 @@ export default function TeacherDashboard() {
           <School size={20} className="text-emerald-500" />
           کلاس‌های من
         </h2>
-        <div className="space-y-3">
-          <ClassRow name="ریاضی دهم - الف" students={32} nextExam="۱۵ بهمن" avgScore="۱۷.۲" />
-          <ClassRow name="ریاضی یازدهم - ب" students={28} nextExam="۱۸ بهمن" avgScore="۱۶.۵" />
-          <ClassRow name="حسابان دوازدهم" students={27} nextExam="۲۰ بهمن" avgScore="۱۶.۸" />
-        </div>
+        
+        {loadingClasses ? (
+          <div className="text-center py-8 text-gray-400">در حال بارگذاری...</div>
+        ) : safeClassrooms.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <School size={48} className="mx-auto mb-2 opacity-30" />
+            <p>هنوز کلاسی برای شما ثبت نشده است.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {safeClassrooms.map((classroom) => (
+              <div key={classroom.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <School size={18} className="text-emerald-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{classroom.name}</p>
+                  <p className="text-xs text-gray-500">{classroom.grade} • {classroom.subject}</p>
+                </div>
+                <div className="text-left">
+                  <p className="text-xs text-gray-500">وضعیت: فعال</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Recent Assignments */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <FileText size={20} className="text-blue-500" />
+          تکالیف اخیر
+        </h2>
+        
+        {loadingAssignments ? (
+          <div className="text-center py-8 text-gray-400">در حال بارگذاری...</div>
+        ) : safeAssignments.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <FileText size={48} className="mx-auto mb-2 opacity-30" />
+            <p>هنوز تکلیفی ایجاد نکرده‌اید.</p>
+            <button
+              onClick={() => navigate('/teacher-dashboard/assignments')}
+              className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              ایجاد تکلیف جدید ←
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {safeAssignments.slice(0, 3).map((assignment) => (
+              <div key={assignment.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <FileText size={18} className="text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{assignment.title}</p>
+                  <p className="text-xs text-gray-500">مهلت: {new Date(assignment.dueAt).toLocaleDateString('fa-IR')}</p>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  assignment.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {assignment.status === 'published' ? 'منتشر شده' : 'پیش‌نویس'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Pending Items */}
@@ -146,26 +228,6 @@ function FeatureCard({ icon, title, description, gradient, onClick }: {
       <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
       <p className="text-sm text-gray-500">{description}</p>
     </button>
-  );
-}
-
-function ClassRow({ name, students, nextExam, avgScore }: {
-  name: string; students: number; nextExam: string; avgScore: string;
-}) {
-  return (
-    <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-      <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-        <School size={18} className="text-emerald-600" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900">{name}</p>
-        <p className="text-xs text-gray-500">{students} دانش‌آموز</p>
-      </div>
-      <div className="text-left">
-        <p className="text-xs text-gray-500">آزمون: {nextExam}</p>
-        <p className="text-xs font-medium text-emerald-600">میانگین: {avgScore}</p>
-      </div>
-    </div>
   );
 }
 
