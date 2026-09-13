@@ -14,6 +14,7 @@ import ProgressPage from './pages/ProgressPage';
 import ExamBuilder from './pages/ExamBuilder';
 import FlashcardsPage from './pages/FlashcardsPage';
 import StudyPlanPage from './pages/StudyPlanPage';
+import ProjectStatusPage from './pages/ProjectStatusPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -112,6 +113,18 @@ function AppRoutes() {
 
       {/* Mini App */}
       <Route path="/mini-app" element={<LoginPage />} />
+
+      {/* Project Status (accessible from any role) */}
+      <Route
+        path="/project-status"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ProjectStatusPage />} />
+      </Route>
 
       {/* Default redirect */}
       <Route path="/" element={<Navigate to="/login" replace />} />

@@ -6,7 +6,7 @@ import {
   Users, School, Settings, LogOut, Menu, X, Sparkles,
   Calendar, Trophy, Layers, Shield, Globe, Activity,
   CreditCard, Flag, Eye, Zap, MessageSquare, GraduationCap,
-  Building2, UserCheck, Server, Database
+  Building2, UserCheck, Server, Database, GitBranch
 } from 'lucide-react';
 
 interface NavItem {
@@ -148,6 +148,27 @@ export default function DashboardLayout() {
               </button>
             );
           })}
+
+          {/* Project Status - visible to all roles */}
+          <div className="pt-4 mt-4 border-t border-gray-100">
+            <button
+              onClick={() => {
+                navigate('/project-status');
+                setSidebarOpen(false);
+              }}
+              className={`
+                w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+                transition-all duration-200
+                ${location.pathname === '/project-status'
+                  ? `bg-gradient-to-l ${roleColor} text-white shadow-md`
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                }
+              `}
+            >
+              <Activity size={20} />
+              <span>نقشه راه پروژه</span>
+            </button>
+          </div>
         </nav>
 
         {/* User section */}
