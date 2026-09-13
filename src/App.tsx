@@ -16,6 +16,12 @@ import FlashcardsPage from './pages/FlashcardsPage';
 import StudyPlanPage from './pages/StudyPlanPage';
 import ProjectStatusPage from './pages/ProjectStatusPage';
 import DeployGuidePage from './pages/DeployGuidePage';
+import TeacherAnalytics from './pages/TeacherAnalytics';
+import TeacherAssistant from './pages/TeacherAssistant';
+import SettingsPage from './pages/SettingsPage';
+import MiniAppPage from './pages/MiniAppPage';
+import PaywallPage from './pages/PaywallPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -68,8 +74,8 @@ function AppRoutes() {
         <Route path="assignments" element={<PlaceholderPage title="تکالیف" />} />
         <Route path="exam-builder" element={<ExamBuilder />} />
         <Route path="results" element={<PlaceholderPage title="نتایج" />} />
-        <Route path="analytics" element={<PlaceholderPage title="تحلیل کلاس" />} />
-        <Route path="assistant" element={<PlaceholderPage title="دستیار معلم" />} />
+        <Route path="analytics" element={<TeacherAnalytics />} />
+        <Route path="assistant" element={<TeacherAssistant />} />
       </Route>
 
       {/* School Admin Routes */}
@@ -112,10 +118,43 @@ function AppRoutes() {
         <Route path="preview" element={<PlaceholderPage title="پیش‌نمایش نقش" />} />
       </Route>
 
-      {/* Mini App */}
-      <Route path="/mini-app" element={<LoginPage />} />
+      {/* Mini App (Telegram Gateway) */}
+      <Route path="/mini-app" element={<MiniAppPage />} />
 
-      {/* Project Status (accessible from any role) */}
+      {/* Shared Pages (accessible from any role) */}
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SettingsPage />} />
+      </Route>
+
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<NotificationsPage />} />
+      </Route>
+
+      <Route
+        path="/upgrade"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<PaywallPage />} />
+      </Route>
+
       <Route
         path="/project-status"
         element={
@@ -127,7 +166,6 @@ function AppRoutes() {
         <Route index element={<ProjectStatusPage />} />
       </Route>
 
-      {/* Deploy Guide (accessible from any role) */}
       <Route
         path="/deploy-guide"
         element={

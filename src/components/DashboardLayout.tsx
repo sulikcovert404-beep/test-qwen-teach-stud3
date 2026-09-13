@@ -6,7 +6,7 @@ import {
   Users, School, Settings, LogOut, Menu, X, Sparkles,
   Calendar, Trophy, Layers, Shield, Globe, Activity,
   CreditCard, Flag, Eye, Zap, MessageSquare, GraduationCap,
-  Building2, UserCheck, Server, Database, GitBranch, Rocket
+  Building2, UserCheck, Server, Database, GitBranch, Rocket, Bell
 } from 'lucide-react';
 
 interface NavItem {
@@ -220,8 +220,27 @@ export default function DashboardLayout() {
             >
               <Menu size={24} />
             </button>
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <button
+                onClick={() => navigate('/notifications')}
+                className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                title="اعلان‌ها"
+              >
+                <Bell size={20} className="text-gray-600" />
+                <span className="absolute top-1 left-1 w-2 h-2 bg-red-500 rounded-full" />
+              </button>
+
+              {/* Settings */}
+              <button
+                onClick={() => navigate('/settings')}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                title="تنظیمات"
+              >
+                <Settings size={20} className="text-gray-600" />
+              </button>
+
+              <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 pr-2 border-r border-gray-200">
                 <Globe size={16} />
                 <span>نسخه آزمایشی</span>
               </div>
