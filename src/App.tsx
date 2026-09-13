@@ -9,6 +9,12 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PlatformDashboard from './pages/PlatformDashboard';
 import NewDashboardHome from './pages/NewDashboardHome';
+import SchoolsPage from './pages/SchoolsPage';
+import UsersPage from './pages/UsersPage';
+import {
+  PlansPage, ContentPage, ExamsPage as AdminExamsPage, AssignmentsPage as AdminAssignmentsPage,
+  ReportsPage, SettingsPage as AdminSettingsPage, SubscribersPage, SupportPage, AIHelpPage
+} from './pages/PlatformPages';
 import AITutor from './pages/AITutor';
 import AssignmentsPage from './pages/AssignmentsPage';
 import ExamsPage from './pages/ExamsPage';
@@ -111,17 +117,17 @@ function AppRoutes() {
         }
       >
         <Route index element={<NewDashboardHome />} />
-        <Route path="subscribers" element={<PlaceholderPage title="مشترکان" />} />
-        <Route path="schools" element={<PlaceholderPage title="مدارس" />} />
-        <Route path="users" element={<PlaceholderPage title="کاربران" />} />
-        <Route path="plans" element={<PlaceholderPage title="طرح‌ها" />} />
-        <Route path="content" element={<PlaceholderPage title="محتوا و درس‌ها" />} />
-        <Route path="exams" element={<PlaceholderPage title="آزمون‌ها" />} />
-        <Route path="assignments" element={<PlaceholderPage title="تکالیف" />} />
-        <Route path="ai" element={<PlaceholderPage title="کمک آموزشی AI" />} />
-        <Route path="reports" element={<PlaceholderPage title="گزارش‌ها" />} />
-        <Route path="settings" element={<PlaceholderPage title="تنظیمات" />} />
-        <Route path="support" element={<PlaceholderPage title="پشتیبانی" />} />
+        <Route path="subscribers" element={<SubscribersPage />} />
+        <Route path="schools" element={<SchoolsPage />} />
+        <Route path="users" element={<UsersPage />} />
+        <Route path="plans" element={<PlansPage />} />
+        <Route path="content" element={<ContentPage />} />
+        <Route path="exams" element={<AdminExamsPage />} />
+        <Route path="assignments" element={<AdminAssignmentsPage />} />
+        <Route path="ai" element={<AIHelpPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="settings" element={<AdminSettingsPage />} />
+        <Route path="support" element={<SupportPage />} />
         <Route path="tenants" element={<PlaceholderPage title="مستأجران" />} />
         <Route path="ai-usage" element={<PlaceholderPage title="مصرف AI" />} />
         <Route path="feature-flags" element={<PlaceholderPage title="پرچم ویژگی" />} />
