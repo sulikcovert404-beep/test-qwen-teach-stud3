@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { School as SchoolIcon, Plus, Search, Filter, MoreVertical, MapPin, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { Modal, FormField, SelectField } from '../components/Modal';
 
 const SCHOOLS_DATA = [
   { id: '1', name: 'دبیرستان شهید بهشتی', city: 'تهران', plan: 'مدرسه', teachers: 24, students: 485, status: 'active', joinDate: '۱۴۰۲/۰۶/۱۵' },
@@ -15,17 +16,49 @@ const SCHOOLS_DATA = [
 export default function SchoolsPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [schools, setSchools] = useState(SCHOOLS_DATA);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newSchool, setNewSchool] = useState({
+    name: '',
+    city: '',
+    plan: 'مدرسه',
+    teachers: '',
+    students: ''
+  });
 
-  const filtered = SCHOOLS_DATA.filter(school => {
+  const filtered = schools.filter(school => {
     const matchesSearch = school.name.includes(search) || school.city.includes(search);
     const matchesFilter = filter === 'all' || school.status === filter;
     return matchesSearch && matchesFilter;
   });
 
-  const totalSchools = SCHOOLS_DATA.length;
-  const activeSchools = SCHOOLS_DATA.filter(s => s.status === 'active').length;
-  const totalTeachers = SCHOOLS_DATA.reduce((sum, s) => sum + s.teachers, 0);
-  const totalStudents = SCHOOLS_DATA.reduce((sum, s) => sum + s.students, 0);
+  const totalSchools = schools.length;
+  const activeSchools = schools.filter(s => s.status === 'active').length;
+  const totalTeachers = schools.reduce((sum, s) => sum + s.teachers, 0);
+  const totalStudents = schools.reduce((sum, s) => sum + s.students, 0);
+
+  const handleAddSchool = () => {
+    if (!newSchool.name || !newSchool.city) {
+      alert('لطفاً نام مدرسه و شهر را وارد کنید');
+      return;
+    }
+
+    const school = {
+      id: Date.now().toString(),
+      name: newSchool.name,
+      city: newSchool.city,
+      plan: newSchool.plan,
+      teachers: parseInt(newSchool.teachers) || 0,
+      students: parseInt(newSchool.students) || 0,
+      status: 'active' as const,
+      joinDate: new Date().toLocaleDateString('fa-IR')
+    };
+
+    setSchools([school, ...schools]);
+    setShowAddModal(false);
+    setNewSchool({ name: '', city: '', plan: 'مدرسه', teachers: '', students: '' });
+    alert('مدرسه با موفقیت اضافه شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -35,13 +68,72 @@ export default function SchoolsPage() {
           <h1 className="text-2xl font-extrabold text-navy">مدارس</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت مدارس و مستأجران پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
                          hover:bg-deep-green transition-colors shadow-lg shadow-primary-green/20
                          flex items-center gap-2">
           <Plus size={18} />
           <span>افزودن مدرسه جدید</span>
         </button>
       </div>
+
+      {/* Add School Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="افزودن مدرسه جدید">
+        <div className="space-y-4">
+          <FormField
+            label="نام مدرسه"
+            placeholder="مثلاً: دبیرستان شهید بهشتی"
+            value={newSchool.name}
+            onChange={(value) => setNewSchool({ ...newSchool, name: value })}
+            required
+          />
+          <FormField
+            label="شهر"
+            placeholder="مثلاً: تهران"
+            value={newSchool.city}
+            onChange={(value) => setNewSchool({ ...newSchool, city: value })}
+            required
+          />
+          <SelectField
+            label="طرح"
+            value={newSchool.plan}
+            onChange={(value) => setNewSchool({ ...newSchool, plan: value })}
+            options={[
+              { value: 'مدرسه', label: 'مدرسه' },
+              { value: 'سازمانی', label: 'سازمانی' }
+            ]}
+          />
+          <FormField
+            label="تعداد معلمان"
+            type="number"
+            placeholder="۰"
+            value={newSchool.teachers}
+            onChange={(value) => setNewSchool({ ...newSchool, teachers: value })}
+          />
+          <FormField
+            label="تعداد دانش‌آموزان"
+            type="number"
+            placeholder="۰"
+            value={newSchool.students}
+            onChange={(value) => setNewSchool({ ...newSchool, students: value })}
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddSchool}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              افزودن مدرسه
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

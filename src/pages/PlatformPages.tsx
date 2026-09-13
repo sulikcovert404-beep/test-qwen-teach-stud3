@@ -6,6 +6,7 @@ import {
   HelpCircle, Mail, Phone, Send, Bot, Lightbulb, BookOpen,
   ClipboardList, Award, Target, Brain, Shield
 } from 'lucide-react';
+import { Modal, FormField, SelectField } from '../components/Modal';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell
@@ -13,13 +14,37 @@ import {
 
 // ============ PLANS PAGE ============
 export function PlansPage() {
-  const plans = [
+  const [plans, setPlans] = useState([
     { name: 'رایگان', code: 'FREE', price: '۰', users: 1245, schools: 0, color: 'bg-gray-100', textColor: 'text-gray-700' },
     { name: 'دانش‌آموز پلاس', code: 'STUDENT_PRO', price: '۴۹,۰۰۰', users: 856, schools: 0, color: 'bg-mint', textColor: 'text-dark-green' },
     { name: 'معلم حرفه‌ای', code: 'TEACHER_PRO', price: '۹۹,۰۰۰', users: 124, schools: 0, color: 'bg-lavender', textColor: 'text-purple' },
     { name: 'مدرسه', code: 'SCHOOL', price: '۴۹۰,۰۰۰', users: 0, schools: 28, color: 'bg-soft-yellow', textColor: 'text-orange' },
     { name: 'سازمانی', code: 'ENTERPRISE', price: 'تماس بگیرید', users: 0, schools: 4, color: 'bg-soft-pink', textColor: 'text-primary-pink' },
-  ];
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newPlan, setNewPlan] = useState({ name: '', price: '' });
+
+  const handleAddPlan = () => {
+    if (!newPlan.name || !newPlan.price) {
+      alert('لطفاً نام و قیمت طرح را وارد کنید');
+      return;
+    }
+
+    const plan = {
+      name: newPlan.name,
+      code: newPlan.name.toUpperCase().replace(/\s/g, '_'),
+      price: newPlan.price,
+      users: 0,
+      schools: 0,
+      color: 'bg-mint',
+      textColor: 'text-dark-green'
+    };
+
+    setPlans([...plans, plan]);
+    setShowAddModal(false);
+    setNewPlan({ name: '', price: '' });
+    alert('طرح با موفقیت ایجاد شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -28,10 +53,46 @@ export function PlansPage() {
           <h1 className="text-2xl font-extrabold text-navy">طرح‌ها</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت طرح‌های اشتراک پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
           <Plus size={18} /><span>ایجاد طرح جدید</span>
         </button>
       </div>
+
+      {/* Add Plan Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="ایجاد طرح جدید">
+        <div className="space-y-4">
+          <FormField
+            label="نام طرح"
+            placeholder="مثلاً: طرح ویژه"
+            value={newPlan.name}
+            onChange={(value) => setNewPlan({ ...newPlan, name: value })}
+            required
+          />
+          <FormField
+            label="قیمت (تومان / ماه)"
+            placeholder="مثلاً: ۹۹,۰۰۰"
+            value={newPlan.price}
+            onChange={(value) => setNewPlan({ ...newPlan, price: value })}
+            required
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddPlan}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              ایجاد طرح
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {plans.map((plan, i) => (
@@ -65,13 +126,44 @@ export function PlansPage() {
 
 // ============ CONTENT PAGE ============
 export function ContentPage() {
-  const contents = [
+  const [contents, setContents] = useState([
     { id: '1', title: 'ریاضی پایه دهم - فصل ۳', subject: 'ریاضی', grade: 'دهم', type: 'درس', author: 'مریم احمدی', status: 'published', date: '۱۴۰۲/۰۹/۱۵' },
     { id: '2', title: 'فیزیک - حرکت‌شناسی', subject: 'فیزیک', grade: 'یازدهم', type: 'درس', author: 'رضا حسینی', status: 'published', date: '۱۴۰۲/۰۹/۱۰' },
     { id: '3', title: 'شیمی آلی - مقدماتی', subject: 'شیمی', grade: 'دوازدهم', type: 'جزوه', author: 'زهرا رضایی', status: 'draft', date: '۱۴۰۲/۰۹/۰۵' },
     { id: '4', title: 'ادبیات فارسی - حافظ', subject: 'ادبیات', grade: 'دهم', type: 'درس', author: 'سارا عباسی', status: 'published', date: '۱۴۰۲/۰۸/۲۸' },
     { id: '5', title: 'زیست‌شناسی - سلول', subject: 'زیست', grade: 'یازدهم', type: 'ویدئو', author: 'حسین نوری', status: 'published', date: '۱۴۰۲/۰۸/۲۰' },
-  ];
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newContent, setNewContent] = useState({
+    title: '',
+    subject: '',
+    grade: '',
+    type: 'درس',
+    author: ''
+  });
+
+  const handleAddContent = () => {
+    if (!newContent.title || !newContent.subject || !newContent.author) {
+      alert('لطفاً تمام فیلدهای ضروری را پر کنید');
+      return;
+    }
+
+    const content = {
+      id: Date.now().toString(),
+      title: newContent.title,
+      subject: newContent.subject,
+      grade: newContent.grade,
+      type: newContent.type,
+      author: newContent.author,
+      status: 'draft' as const,
+      date: new Date().toLocaleDateString('fa-IR')
+    };
+
+    setContents([content, ...contents]);
+    setShowAddModal(false);
+    setNewContent({ title: '', subject: '', grade: '', type: 'درس', author: '' });
+    alert('محتوا با موفقیت ایجاد شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -80,10 +172,69 @@ export function ContentPage() {
           <h1 className="text-2xl font-extrabold text-navy">محتوا و درس‌ها</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت محتوای آموزشی پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
           <Plus size={18} /><span>ایجاد محتوای جدید</span>
         </button>
       </div>
+
+      {/* Add Content Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="ایجاد محتوای جدید">
+        <div className="space-y-4">
+          <FormField
+            label="عنوان"
+            placeholder="مثلاً: ریاضی پایه دهم - فصل ۳"
+            value={newContent.title}
+            onChange={(value) => setNewContent({ ...newContent, title: value })}
+            required
+          />
+          <FormField
+            label="درس"
+            placeholder="مثلاً: ریاضی"
+            value={newContent.subject}
+            onChange={(value) => setNewContent({ ...newContent, subject: value })}
+            required
+          />
+          <FormField
+            label="پایه تحصیلی"
+            placeholder="مثلاً: دهم"
+            value={newContent.grade}
+            onChange={(value) => setNewContent({ ...newContent, grade: value })}
+          />
+          <SelectField
+            label="نوع"
+            value={newContent.type}
+            onChange={(value) => setNewContent({ ...newContent, type: value })}
+            options={[
+              { value: 'درس', label: 'درس' },
+              { value: 'جزوه', label: 'جزوه' },
+              { value: 'ویدئو', label: 'ویدئو' }
+            ]}
+          />
+          <FormField
+            label="نویسنده"
+            placeholder="مثلاً: مریم احمدی"
+            value={newContent.author}
+            onChange={(value) => setNewContent({ ...newContent, author: value })}
+            required
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddContent}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              ایجاد محتوا
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={<BookOpen size={20} />} label="کل محتوا" value="۲۴۵" bgColor="bg-mint" iconColor="text-dark-green" />
@@ -138,13 +289,45 @@ export function ContentPage() {
 
 // ============ EXAMS PAGE ============
 export function ExamsPage() {
-  const exams = [
+  const [exams, setExams] = useState([
     { id: '1', title: 'آزمون میان‌ترم ریاضی دهم', subject: 'ریاضی', grade: 'دهم', questions: 20, duration: 60, participants: 125, avgScore: 16.8, status: 'completed' },
     { id: '2', title: 'آزمون فصل ۲ فیزیک', subject: 'فیزیک', grade: 'یازدهم', questions: 15, duration: 45, participants: 98, avgScore: 15.2, status: 'completed' },
     { id: '3', title: 'کوییز شیمی - پیوندها', subject: 'شیمی', grade: 'دوازدهم', questions: 10, duration: 20, participants: 85, avgScore: 17.5, status: 'active' },
     { id: '4', title: 'آزمون ادبیات - آرایه‌ها', subject: 'ادبیات', grade: 'دهم', questions: 25, duration: 40, participants: 110, avgScore: 14.9, status: 'completed' },
     { id: '5', title: 'آزمون زیست - سلول', subject: 'زیست', grade: 'یازدهم', questions: 18, duration: 35, participants: 0, avgScore: 0, status: 'scheduled' },
-  ];
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newExam, setNewExam] = useState({
+    title: '',
+    subject: '',
+    grade: '',
+    questions: '',
+    duration: ''
+  });
+
+  const handleAddExam = () => {
+    if (!newExam.title || !newExam.subject) {
+      alert('لطفاً عنوان و درس آزمون را وارد کنید');
+      return;
+    }
+
+    const exam = {
+      id: Date.now().toString(),
+      title: newExam.title,
+      subject: newExam.subject,
+      grade: newExam.grade,
+      questions: parseInt(newExam.questions) || 0,
+      duration: parseInt(newExam.duration) || 0,
+      participants: 0,
+      avgScore: 0,
+      status: 'scheduled' as const
+    };
+
+    setExams([exam, ...exams]);
+    setShowAddModal(false);
+    setNewExam({ title: '', subject: '', grade: '', questions: '', duration: '' });
+    alert('آزمون با موفقیت ایجاد شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -153,10 +336,66 @@ export function ExamsPage() {
           <h1 className="text-2xl font-extrabold text-navy">آزمون‌ها</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت آزمون‌های پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
           <Plus size={18} /><span>ایجاد آزمون جدید</span>
         </button>
       </div>
+
+      {/* Add Exam Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="ایجاد آزمون جدید">
+        <div className="space-y-4">
+          <FormField
+            label="عنوان آزمون"
+            placeholder="مثلاً: آزمون میان‌ترم ریاضی"
+            value={newExam.title}
+            onChange={(value) => setNewExam({ ...newExam, title: value })}
+            required
+          />
+          <FormField
+            label="درس"
+            placeholder="مثلاً: ریاضی"
+            value={newExam.subject}
+            onChange={(value) => setNewExam({ ...newExam, subject: value })}
+            required
+          />
+          <FormField
+            label="پایه تحصیلی"
+            placeholder="مثلاً: دهم"
+            value={newExam.grade}
+            onChange={(value) => setNewExam({ ...newExam, grade: value })}
+          />
+          <FormField
+            label="تعداد سؤالات"
+            type="number"
+            placeholder="۲۰"
+            value={newExam.questions}
+            onChange={(value) => setNewExam({ ...newExam, questions: value })}
+          />
+          <FormField
+            label="مدت آزمون (دقیقه)"
+            type="number"
+            placeholder="۶۰"
+            value={newExam.duration}
+            onChange={(value) => setNewExam({ ...newExam, duration: value })}
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddExam}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              ایجاد آزمون
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={<ClipboardList size={20} />} label="کل آزمون‌ها" value="۱۲۸" bgColor="bg-mint" iconColor="text-dark-green" />
@@ -213,12 +452,45 @@ export function ExamsPage() {
 
 // ============ ASSIGNMENTS PAGE ============
 export function AssignmentsPage() {
-  const assignments = [
+  const [assignments, setAssignments] = useState([
     { id: '1', title: 'تمرین‌های فصل ۳ ریاضی', subject: 'ریاضی', class: 'دهم الف', teacher: 'مریم احمدی', dueDate: '۱۴ بهمن', submissions: 28, total: 32, status: 'active' },
     { id: '2', title: 'گزارش آزمایش حرکت', subject: 'فیزیک', class: 'یازدهم ب', teacher: 'رضا حسینی', dueDate: '۱۶ بهمن', submissions: 15, total: 28, status: 'active' },
     { id: '3', title: 'تحلیل شعر حافظ', subject: 'ادبیات', class: 'دهم الف', teacher: 'سارا عباسی', dueDate: '۱۰ بهمن', submissions: 32, total: 32, status: 'closed' },
     { id: '4', title: 'تمرین‌های شیمی آلی', subject: 'شیمی', class: 'دوازدهم', teacher: 'زهرا رضایی', dueDate: '۸ بهمن', submissions: 24, total: 25, status: 'graded' },
-  ];
+  ]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newAssignment, setNewAssignment] = useState({
+    title: '',
+    subject: '',
+    class: '',
+    teacher: '',
+    dueDate: '',
+    total: ''
+  });
+
+  const handleAddAssignment = () => {
+    if (!newAssignment.title || !newAssignment.subject || !newAssignment.class) {
+      alert('لطفاً تمام فیلدهای ضروری را پر کنید');
+      return;
+    }
+
+    const assignment = {
+      id: Date.now().toString(),
+      title: newAssignment.title,
+      subject: newAssignment.subject,
+      class: newAssignment.class,
+      teacher: newAssignment.teacher,
+      dueDate: newAssignment.dueDate,
+      submissions: 0,
+      total: parseInt(newAssignment.total) || 0,
+      status: 'active' as const
+    };
+
+    setAssignments([assignment, ...assignments]);
+    setShowAddModal(false);
+    setNewAssignment({ title: '', subject: '', class: '', teacher: '', dueDate: '', total: '' });
+    alert('تکلیف با موفقیت ایجاد شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -227,10 +499,72 @@ export function AssignmentsPage() {
           <h1 className="text-2xl font-extrabold text-navy">تکالیف</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت تکالیف دانش‌آموزان</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
           <Plus size={18} /><span>ایجاد تکلیف جدید</span>
         </button>
       </div>
+
+      {/* Add Assignment Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="ایجاد تکلیف جدید">
+        <div className="space-y-4">
+          <FormField
+            label="عنوان تکلیف"
+            placeholder="مثلاً: تمرین‌های فصل ۳ ریاضی"
+            value={newAssignment.title}
+            onChange={(value) => setNewAssignment({ ...newAssignment, title: value })}
+            required
+          />
+          <FormField
+            label="درس"
+            placeholder="مثلاً: ریاضی"
+            value={newAssignment.subject}
+            onChange={(value) => setNewAssignment({ ...newAssignment, subject: value })}
+            required
+          />
+          <FormField
+            label="کلاس"
+            placeholder="مثلاً: دهم الف"
+            value={newAssignment.class}
+            onChange={(value) => setNewAssignment({ ...newAssignment, class: value })}
+            required
+          />
+          <FormField
+            label="معلم"
+            placeholder="مثلاً: مریم احمدی"
+            value={newAssignment.teacher}
+            onChange={(value) => setNewAssignment({ ...newAssignment, teacher: value })}
+          />
+          <FormField
+            label="مهلت ارسال"
+            placeholder="مثلاً: ۱۴ بهمن"
+            value={newAssignment.dueDate}
+            onChange={(value) => setNewAssignment({ ...newAssignment, dueDate: value })}
+          />
+          <FormField
+            label="تعداد دانش‌آموزان"
+            type="number"
+            placeholder="۳۲"
+            value={newAssignment.total}
+            onChange={(value) => setNewAssignment({ ...newAssignment, total: value })}
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddAssignment}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              ایجاد تکلیف
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={<FileText size={20} />} label="کل تکالیف" value="۸۵" bgColor="bg-mint" iconColor="text-dark-green" />

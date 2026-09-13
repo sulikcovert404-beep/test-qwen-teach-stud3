@@ -4,6 +4,7 @@ import {
   Mail, Phone, Shield, CheckCircle2, UserCheck, GraduationCap,
   BookOpen, Building2
 } from 'lucide-react';
+import { Modal, FormField, SelectField } from '../components/Modal';
 
 const USERS_DATA = [
   { id: '1', name: 'علی محمدی', email: 'ali@example.com', role: 'دانش‌آموز', school: 'دبیرستان شهید بهشتی', status: 'active', joinDate: '۱۴۰۲/۰۷/۱۵' },
@@ -19,17 +20,47 @@ const USERS_DATA = [
 export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [users, setUsers] = useState(USERS_DATA);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    role: 'دانش‌آموز',
+    school: ''
+  });
 
-  const filtered = USERS_DATA.filter(user => {
+  const filtered = users.filter(user => {
     const matchesSearch = user.name.includes(search) || user.email.includes(search);
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const totalUsers = USERS_DATA.length;
-  const students = USERS_DATA.filter(u => u.role === 'دانش‌آموز').length;
-  const teachers = USERS_DATA.filter(u => u.role === 'معلم').length;
-  const admins = USERS_DATA.filter(u => u.role === 'مدیر مدرسه').length;
+  const totalUsers = users.length;
+  const students = users.filter(u => u.role === 'دانش‌آموز').length;
+  const teachers = users.filter(u => u.role === 'معلم').length;
+  const admins = users.filter(u => u.role === 'مدیر مدرسه').length;
+
+  const handleAddUser = () => {
+    if (!newUser.name || !newUser.email || !newUser.school) {
+      alert('لطفاً تمام فیلدهای ضروری را پر کنید');
+      return;
+    }
+
+    const user = {
+      id: Date.now().toString(),
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      school: newUser.school,
+      status: 'active' as const,
+      joinDate: new Date().toLocaleDateString('fa-IR')
+    };
+
+    setUsers([user, ...users]);
+    setShowAddModal(false);
+    setNewUser({ name: '', email: '', role: 'دانش‌آموز', school: '' });
+    alert('کاربر با موفقیت اضافه شد!');
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -39,13 +70,67 @@ export default function UsersPage() {
           <h1 className="text-2xl font-extrabold text-navy">کاربران</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت کاربران پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
                          hover:bg-deep-green transition-colors shadow-lg shadow-primary-green/20
                          flex items-center gap-2">
           <Plus size={18} />
           <span>افزودن کاربر جدید</span>
         </button>
       </div>
+
+      {/* Add User Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="افزودن کاربر جدید">
+        <div className="space-y-4">
+          <FormField
+            label="نام کامل"
+            placeholder="مثلاً: علی محمدی"
+            value={newUser.name}
+            onChange={(value) => setNewUser({ ...newUser, name: value })}
+            required
+          />
+          <FormField
+            label="ایمیل"
+            type="email"
+            placeholder="example@email.com"
+            value={newUser.email}
+            onChange={(value) => setNewUser({ ...newUser, email: value })}
+            required
+          />
+          <SelectField
+            label="نقش"
+            value={newUser.role}
+            onChange={(value) => setNewUser({ ...newUser, role: value })}
+            options={[
+              { value: 'دانش‌آموز', label: 'دانش‌آموز' },
+              { value: 'معلم', label: 'معلم' },
+              { value: 'مدیر مدرسه', label: 'مدیر مدرسه' }
+            ]}
+          />
+          <FormField
+            label="مدرسه"
+            placeholder="مثلاً: دبیرستان شهید بهشتی"
+            value={newUser.school}
+            onChange={(value) => setNewUser({ ...newUser, school: value })}
+            required
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddUser}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              افزودن کاربر
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
