@@ -1,5 +1,39 @@
 @import "tailwindcss";
 
+@theme {
+  /* Brand Colors - Emerald & Mint */
+  --color-primary-green: #10B981;
+  --color-dark-green: #059669;
+  --color-deep-green: #047857;
+  --color-mint: #DDF8EC;
+  --color-soft-mint: #ECFDF5;
+  --color-very-light-green: #F2FBF7;
+  --color-hover-green: #F0FBF6;
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #15803D;
+  --color-growth-green: #16A66A;
+
+  /* Text Colors */
+  --color-navy: #15316B;
+  --color-secondary-text: #64748B;
+
+  /* Background & Surface */
+  --color-bg: #F7FAFC;
+  --color-card-bg: #FFFFFF;
+  --color-border: #E8EEF4;
+
+  /* Accent Pastels */
+  --color-lavender: #ECE4FF;
+  --color-purple: #7253E8;
+  --color-soft-yellow: #FFF3D2;
+  --color-orange: #F58634;
+  --color-soft-pink: #FFE4ED;
+  --color-primary-pink: #FF2E75;
+  --color-light-blue: #DFEFFF;
+  --color-peach: #FFE5D9;
+  --color-cream: #FFF8E7;
+}
+
 @layer base {
   html {
     direction: rtl;
@@ -7,7 +41,7 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-bg text-navy antialiased;
     font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
   }
 
@@ -26,17 +60,45 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: #E5E7EB;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    background: #D1D5DB;
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Gradient backgrounds */
+  .gradient-hero {
+    background: linear-gradient(110deg, #F1FBEF 0%, #E8FAF1 45%, #FFF5EA 100%);
+  }
+
+  .gradient-brand {
+    background: linear-gradient(135deg, #059669 0%, #10B981 55%, #18C88A 100%);
+  }
+
+  .gradient-button {
+    background: linear-gradient(135deg, #059669, #10B981);
+  }
+
+  .gradient-soft {
+    background: linear-gradient(135deg, #ECFDF5 0%, #F2FBF7 100%);
+  }
+
+  /* Card shadow */
+  .card-shadow {
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    border: 1px solid #E8EEF4;
+  }
+
+  .card-shadow-hover {
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+    border: 1px solid #E8EEF4;
   }
 }

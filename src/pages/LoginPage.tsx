@@ -1,15 +1,16 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
-import { GraduationCap, BookOpen, Shield, Building2, Sparkles, ArrowLeft } from 'lucide-react';
+import { GraduationCap, BookOpen, Shield, Building2, ArrowLeft, Leaf } from 'lucide-react';
 
 interface RoleCard {
   role: UserRole;
   title: string;
   description: string;
   icon: React.ReactNode;
-  gradient: string;
-  path: string;
+  bgColor: string;
+  iconBg: string;
+  hoverBg: string;
 }
 
 const ROLES: RoleCard[] = [
@@ -17,33 +18,37 @@ const ROLES: RoleCard[] = [
     role: 'STUDENT',
     title: 'دانش‌آموز',
     description: 'دسترسی به دستیار هوشمند، آزمون‌ها، تکالیف و برنامه مطالعه شخصی',
-    icon: <GraduationCap size={32} />,
-    gradient: 'from-blue-500 to-cyan-500',
-    path: '/student-dashboard',
+    icon: <GraduationCap size={28} />,
+    bgColor: 'bg-light-blue',
+    iconBg: 'text-blue-600',
+    hoverBg: 'hover:border-blue-200',
   },
   {
     role: 'TEACHER',
     title: 'معلم',
     description: 'مدیریت کلاس، طراحی آزمون، تحلیل عملکرد و دستیار هوشمند معلم',
-    icon: <BookOpen size={32} />,
-    gradient: 'from-emerald-500 to-teal-500',
-    path: '/teacher-dashboard',
+    icon: <BookOpen size={28} />,
+    bgColor: 'bg-mint',
+    iconBg: 'text-dark-green',
+    hoverBg: 'hover:border-primary-green/30',
   },
   {
     role: 'SCHOOL_ADMIN',
     title: 'مدیر مدرسه',
     description: 'مدیریت معلمان، دانش‌آموزان، کلاس‌ها و مشاهده عملکرد مدرسه',
-    icon: <Building2 size={32} />,
-    gradient: 'from-purple-500 to-violet-500',
-    path: '/admin-dashboard',
+    icon: <Building2 size={28} />,
+    bgColor: 'bg-lavender',
+    iconBg: 'text-purple',
+    hoverBg: 'hover:border-purple-200',
   },
   {
     role: 'SUPER_ADMIN',
     title: 'مدیر سیستم',
     description: 'مدیریت کل پلتفرم، مستأجران، طرح‌ها و سلامت سیستم',
-    icon: <Shield size={32} />,
-    gradient: 'from-rose-500 to-pink-500',
-    path: '/platform',
+    icon: <Shield size={28} />,
+    bgColor: 'bg-soft-mint',
+    iconBg: 'text-dark-green',
+    hoverBg: 'hover:border-dark-green/30',
   },
 ];
 
@@ -51,61 +56,67 @@ export default function LoginPage() {
   const { login, isLoading } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                           radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%)`,
-        }} />
-      </div>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorations - Green theme */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-mint rounded-full blur-3xl opacity-40 -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-soft-mint rounded-full blur-3xl opacity-40 translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-lavender rounded-full blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2" />
 
-      <div className="relative w-full max-w-4xl">
+      <div className="relative w-full max-w-5xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <Sparkles className="text-amber-400" size={28} />
-            </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 gradient-brand rounded-2xl mb-5 shadow-lg shadow-primary-green/30">
+            <GraduationCap className="text-white" size={32} />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">
-            پلتفرم آموزش هوشمند ایران
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-navy mb-3">
+            آموزش هوشمند
           </h1>
-          <p className="text-blue-200 text-lg max-w-2xl mx-auto">
-            سیستم مدیریت آموزش مبتنی بر هوش مصنوعی برای مدارس، معلمان و دانش‌آموزان
+          <p className="text-secondary-text text-base sm:text-lg max-w-xl mx-auto">
+            باهم، برای آینده‌ای روشن‌تر 🌱
+          </p>
+          <p className="text-sm text-secondary-text/70 mt-2">
+            پلتفرم آموزش هوشمند ویژه مدارس، از ابتدایی تا دبیرستان
           </p>
         </div>
 
         {/* Role cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {ROLES.map((roleCard) => (
             <button
               key={roleCard.role}
               onClick={() => login(roleCard.role)}
               disabled={isLoading}
-              className="group relative bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 text-right
-                         hover:bg-white/20 hover:scale-[1.02] transition-all duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`group relative bg-white rounded-3xl p-6 text-right card-shadow
+                         hover:card-shadow-hover hover:-translate-y-1 transition-all duration-300
+                         disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden ${roleCard.hoverBg}`}
             >
-              <div className={`w-14 h-14 rounded-xl bg-gradient-to-l ${roleCard.gradient} flex items-center justify-center text-white mb-4
+              {/* Background gradient on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-soft-mint to-mint opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+
+              <div className="relative">
+                <div className={`w-14 h-14 rounded-2xl ${roleCard.bgColor} flex items-center justify-center ${roleCard.iconBg} mb-4
                              group-hover:scale-110 transition-transform duration-300`}>
-                {roleCard.icon}
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">{roleCard.title}</h3>
-              <p className="text-blue-200 text-sm leading-relaxed">{roleCard.description}</p>
-              <div className="mt-4 flex items-center gap-2 text-white/70 text-sm group-hover:text-white transition-colors">
-                <span>ورود به پنل</span>
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                  {roleCard.icon}
+                </div>
+                <h3 className="text-lg font-bold text-navy mb-2">{roleCard.title}</h3>
+                <p className="text-sm text-secondary-text leading-relaxed mb-4">{roleCard.description}</p>
+                <div className="flex items-center gap-2 text-dark-green text-sm font-medium group-hover:gap-3 transition-all">
+                  <span>ورود به پنل</span>
+                  <ArrowLeft size={16} />
+                </div>
               </div>
             </button>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center">
-          <p className="text-blue-300/60 text-sm">
-            محیط آزمایشی — برای مشاهده هر نقش، روی کارت مربوطه کلیک کنید
-          </p>
+        <div className="mt-10 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full border border-border">
+            <Leaf size={14} className="text-primary-green" />
+            <p className="text-xs text-secondary-text">
+              محیط آزمایشی — برای مشاهده هر نقش، روی کارت مربوطه کلیک کنید
+            </p>
+          </div>
         </div>
       </div>
     </div>
