@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Users as UsersIcon, Plus, Search, Filter, MoreVertical,
   Mail, Phone, Shield, CheckCircle2, UserCheck, GraduationCap,
-  BookOpen, Building2
+  BookOpen, Building2, Edit, Trash2, Eye
 } from 'lucide-react';
 import { Modal, FormField, SelectField } from '../components/Modal';
 
@@ -22,12 +22,15 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [users, setUsers] = useState(USERS_DATA);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
     role: 'دانش‌آموز',
     school: ''
   });
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const filtered = users.filter(user => {
     const matchesSearch = user.name.includes(search) || user.email.includes(search);
@@ -59,7 +62,37 @@ export default function UsersPage() {
     setUsers([user, ...users]);
     setShowAddModal(false);
     setNewUser({ name: '', email: '', role: 'دانش‌آموز', school: '' });
-    alert('کاربر با موفقیت اضافه شد!');
+    alert('✅ کاربر با موفقیت اضافه شد!');
+  };
+
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+    setOpenMenu(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingUser.name || !editingUser.email || !editingUser.school) {
+      alert('لطفاً تمام فیلدهای ضروری را پر کنید');
+      return;
+    }
+    setUsers(users.map(u => u.id === editingUser.id ? editingUser : u));
+    setShowEditModal(false);
+    setEditingUser(null);
+    alert('✅ کاربر با موفقیت ویرایش شد!');
+  };
+
+  const handleDeleteUser = (id: string) => {
+    if (confirm('آیا از حذف این کاربر مطمئن هستید؟')) {
+      setUsers(users.filter(u => u.id !== id));
+      setOpenMenu(null);
+      alert('✅ کاربر با موفقیت حذف شد!');
+    }
+  };
+
+  const handleViewUser = (user: any) => {
+    alert(`مشاهده جزئیات: ${user.name}`);
+    setOpenMenu(null);
   };
 
   return (
@@ -220,10 +253,23 @@ export default function UsersPage() {
                     </span>
                   </td>
                   <td className="py-4 px-5 text-sm text-secondary-text">{user.joinDate}</td>
-                  <td className="py-4 px-5">
-                    <button className="p-2 hover:bg-bg rounded-lg transition-colors">
+                  <td className="py-4 px-5 relative">
+                    <button onClick={() => setOpenMenu(openMenu === user.id ? null : user.id)} className="p-2 hover:bg-bg rounded-lg transition-colors">
                       <MoreVertical size={16} className="text-secondary-text" />
                     </button>
+                    {openMenu === user.id && (
+                      <div className="absolute top-12 left-4 bg-white rounded-xl shadow-lg border border-border py-2 z-10 min-w-[150px]">
+                        <button onClick={() => handleViewUser(user)} className="w-full px-4 py-2 text-right text-sm text-navy hover:bg-bg flex items-center gap-2">
+                          <Eye size={14} /> مشاهده
+                        </button>
+                        <button onClick={() => handleEditUser(user)} className="w-full px-4 py-2 text-right text-sm text-navy hover:bg-bg flex items-center gap-2">
+                          <Edit size={14} /> ویرایش
+                        </button>
+                        <button onClick={() => handleDeleteUser(user.id)} className="w-full px-4 py-2 text-right text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                          <Trash2 size={14} /> حذف
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -250,6 +296,66 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="ویرایش کاربر">
+        {editingUser && (
+          <div className="space-y-4">
+            <FormField
+              label="نام کامل"
+              value={editingUser.name}
+              onChange={(value) => setEditingUser({ ...editingUser, name: value })}
+              required
+            />
+            <FormField
+              label="ایمیل"
+              type="email"
+              value={editingUser.email}
+              onChange={(value) => setEditingUser({ ...editingUser, email: value })}
+              required
+            />
+            <SelectField
+              label="نقش"
+              value={editingUser.role}
+              onChange={(value) => setEditingUser({ ...editingUser, role: value })}
+              options={[
+                { value: 'دانش‌آموز', label: 'دانش‌آموز' },
+                { value: 'معلم', label: 'معلم' },
+                { value: 'مدیر مدرسه', label: 'مدیر مدرسه' }
+              ]}
+            />
+            <FormField
+              label="مدرسه"
+              value={editingUser.school}
+              onChange={(value) => setEditingUser({ ...editingUser, school: value })}
+              required
+            />
+            <SelectField
+              label="وضعیت"
+              value={editingUser.status}
+              onChange={(value) => setEditingUser({ ...editingUser, status: value })}
+              options={[
+                { value: 'active', label: 'فعال' },
+                { value: 'suspended', label: 'معلق' }
+              ]}
+            />
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleSaveEdit}
+                className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+              >
+                ذخیره تغییرات
+              </button>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+              >
+                انصراف
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
