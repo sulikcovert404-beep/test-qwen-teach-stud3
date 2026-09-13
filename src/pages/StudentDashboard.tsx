@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useApiList } from '../hooks/useApi';
+import { assignmentApi, statsApi } from '../backend/api';
 import {
   Brain, FileText, ClipboardList, Calendar, BarChart3,
   Layers, TrendingUp, Clock, CheckCircle2, AlertCircle,
@@ -10,6 +12,16 @@ import { useNavigate } from 'react-router-dom';
 export default function StudentDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch assignments from API
+  const { data: assignmentsData, loading: loadingAssignments } = useApiList(
+    () => assignmentApi.getAll(),
+    [user?.id]
+  );
+
+  const assignments = assignmentsData || [];
+  // Stats
+  const activeAssignments = assignments.filter(a => a.status === 'published').length;
 
   if (!user) return null;
 
@@ -26,7 +38,7 @@ export default function StudentDashboard() {
         <StatCard
           icon={<FileText size={20} />}
           label="تکالیف فعال"
-          value="۳"
+          value={loadingAssignments ? '...' : activeAssignments.toString()}
           color="bg-blue-50 text-blue-600"
         />
         <StatCard
@@ -61,7 +73,7 @@ export default function StudentDashboard() {
         <FeatureCard
           icon={<FileText size={24} />}
           title="تکالیف"
-          description="تکالیف فعال و مهلت ارسال"
+          description={`${activeAssignments} تکلیف فعال`}
           gradient="from-blue-500 to-indigo-500"
           onClick={() => navigate('/student-dashboard/assignments')}
         />
@@ -95,6 +107,42 @@ export default function StudentDashboard() {
         />
       </div>
 
+      {/* Assignments List */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <FileText size={20} className="text-blue-500" />
+          تکالیف فعال
+        </h2>
+        
+        {loadingAssignments ? (
+          <div className="text-center py-8 text-gray-400">در حال بارگذاری...</div>
+        ) : assignments.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <FileText size={48} className="mx-auto mb-2 opacity-30" />
+            <p>هنوز تکلیفی برای شما ثبت نشده است.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {assignments.slice(0, 3).map((assignment) => (
+              <div
+                key={assignment.id}
+                className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => navigate('/student-dashboard/assignments')}
+              >
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <FileText size={18} className="text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{assignment.title}</p>
+                  <p className="text-xs text-gray-500">مهلت: {new Date(assignment.dueAt).toLocaleDateString('fa-IR')}</p>
+                </div>
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">فعال</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Today's Schedule */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -117,6 +165,12 @@ export default function StudentDashboard() {
           <p className="text-sm text-amber-700 mt-1">
             برای دسترسی نامحدود به دستیار هوشمند، تولید سؤال و تحلیل پیشرفته، طرح خود را ارتقا دهید.
           </p>
+          <button
+            onClick={() => navigate('/upgrade')}
+            className="mt-2 text-xs font-medium text-amber-900 hover:text-amber-700 underline"
+          >
+            مشاهده طرح‌ها ←
+          </button>
         </div>
       </div>
     </div>

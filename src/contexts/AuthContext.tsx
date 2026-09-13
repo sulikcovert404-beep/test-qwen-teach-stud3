@@ -1,64 +1,86 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { User, UserRole, ROLE_DASHBOARD_PATHS } from '../types';
+import { authApi } from '../backend/api';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (role: UserRole) => void;
-  logout: () => void;
+  login: (role: UserRole) => Promise<void>;
+  logout: () => Promise<void>;
   dashboardPath: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEMO_USERS: Record<UserRole, User> = {
-  STUDENT: {
-    id: 'stu-001',
-    name: 'علی محمدی',
-    role: 'STUDENT',
-    plan: 'STUDENT_FREE',
-    tenantId: 'tenant-001',
-    tenantName: 'دبیرستان شهید بهشتی',
-  },
-  TEACHER: {
-    id: 'tch-001',
-    name: 'مریم احمدی',
-    role: 'TEACHER',
-    plan: 'TEACHER_FREE',
-    tenantId: 'tenant-001',
-    tenantName: 'دبیرستان شهید بهشتی',
-  },
-  SCHOOL_ADMIN: {
-    id: 'adm-001',
-    name: 'رضا کریمی',
-    role: 'SCHOOL_ADMIN',
-    plan: 'SCHOOL_FREE',
-    tenantId: 'tenant-001',
-    tenantName: 'دبیرستان شهید بهشتی',
-  },
-  SUPER_ADMIN: {
-    id: 'super-001',
-    name: 'مدیر سیستم',
-    role: 'SUPER_ADMIN',
-    plan: 'ENTERPRISE',
-  },
-};
+const AUTH_STORAGE_KEY = 'auth_session';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback((role: UserRole) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setUser(DEMO_USERS[role]);
-      setIsLoading(false);
-    }, 600);
+  // Restore session on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (stored) {
+          const session = JSON.parse(stored);
+          const dbUser = await authApi.getMe();
+          if (dbUser) {
+            setUser({
+              id: dbUser.id,
+              name: dbUser.name,
+              role: dbUser.role as UserRole,
+              plan: dbUser.plan as any,
+              tenantId: dbUser.tenantId,
+              tenantName: dbUser.tenantId ? 'دبیرستان شهید بهشتی' : undefined,
+            });
+          }
+        }
+      } catch (error) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
   }, []);
 
-  const logout = useCallback(() => {
+  const login = useCallback(async (role: UserRole) => {
+    setIsLoading(true);
+    try {
+      const { user: dbUser } = await authApi.login(role);
+      
+      const mappedUser: User = {
+        id: dbUser.id,
+        name: dbUser.name,
+        role: dbUser.role as UserRole,
+        plan: dbUser.plan as any,
+        tenantId: dbUser.tenantId,
+        tenantName: dbUser.tenantId ? 'دبیرستان شهید بهشتی' : undefined,
+      };
+      
+      setUser(mappedUser);
+      
+      // Persist session
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        userId: dbUser.id,
+        role: dbUser.role,
+      }));
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    await authApi.logout();
     setUser(null);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   }, []);
 
   const dashboardPath = user ? ROLE_DASHBOARD_PATHS[user.role] : null;

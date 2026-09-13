@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Brain, Send, Sparkles, BookOpen, Lightbulb, RotateCcw, AlertCircle } from 'lucide-react';
+import { aiApi } from '../backend/api';
 
 interface Message {
   id: string;
@@ -30,7 +31,7 @@ export default function AITutor() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = {
@@ -41,21 +42,33 @@ export default function AITutor() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Call AI API
+      const response = await aiApi.chat(currentInput, 'tutor');
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: getAIResponse(input),
+        content: response,
         timestamp: 'الان',
         sources: ['ریاضی دهم - فصل ۳', 'کتاب درسی صفحه ۴۵'],
       };
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'متأسفانه خطایی رخ داد. لطفاً دوباره تلاش کنید.',
+        timestamp: 'الان',
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleSuggestion = (text: string) => {

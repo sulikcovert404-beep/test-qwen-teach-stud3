@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useApi } from '../hooks/useApi';
+import { statsApi } from '../backend/api';
 import {
   Users, School, UserCheck, CreditCard, Activity,
   BarChart3, Settings, TrendingUp, Building2,
@@ -11,7 +13,15 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch stats from API
+  const { data: stats, loading: loadingStats } = useApi(
+    () => statsApi.getSchoolStats(),
+    [user?.id]
+  );
+
   if (!user) return null;
+
+  const safeStats = stats || { totalTeachers: 0, totalStudents: 0, totalClasses: 0, todayActivity: 0 };
 
   return (
     <div className="space-y-6">
@@ -30,10 +40,10 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<UserCheck size={20} />} label="معلمان فعال" value="۲۴" color="bg-purple-50 text-purple-600" />
-        <StatCard icon={<GraduationCap size={20} />} label="دانش‌آموزان" value="۴۸۵" color="bg-blue-50 text-blue-600" />
-        <StatCard icon={<School size={20} />} label="کلاس‌ها" value="۳۲" color="bg-emerald-50 text-emerald-600" />
-        <StatCard icon={<Activity size={20} />} label="فعالیت امروز" value="۱,۲۴۰" color="bg-amber-50 text-amber-600" />
+        <StatCard icon={<UserCheck size={20} />} label="معلمان فعال" value={loadingStats ? '...' : safeStats.totalTeachers.toString()} color="bg-purple-50 text-purple-600" />
+        <StatCard icon={<GraduationCap size={20} />} label="دانش‌آموزان" value={loadingStats ? '...' : safeStats.totalStudents.toString()} color="bg-blue-50 text-blue-600" />
+        <StatCard icon={<School size={20} />} label="کلاس‌ها" value={loadingStats ? '...' : safeStats.totalClasses.toString()} color="bg-emerald-50 text-emerald-600" />
+        <StatCard icon={<Activity size={20} />} label="فعالیت امروز" value={loadingStats ? '...' : safeStats.todayActivity.toLocaleString('fa-IR')} color="bg-amber-50 text-amber-600" />
       </div>
 
       {/* Quick Actions */}
