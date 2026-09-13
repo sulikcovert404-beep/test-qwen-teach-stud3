@@ -6,7 +6,7 @@ import {
   Users, School, Settings, LogOut, Menu, X, Sparkles,
   Calendar, Trophy, Layers, Shield, Globe, Activity,
   CreditCard, Flag, Eye, Zap, MessageSquare, GraduationCap,
-  Building2, UserCheck, Server, Database, GitBranch
+  Building2, UserCheck, Server, Database, GitBranch, Rocket
 } from 'lucide-react';
 
 interface NavItem {
@@ -149,8 +149,8 @@ export default function DashboardLayout() {
             );
           })}
 
-          {/* Project Status - visible to all roles */}
-          <div className="pt-4 mt-4 border-t border-gray-100">
+          {/* Project Status & Deploy Guide - visible to all roles */}
+          <div className="pt-4 mt-4 border-t border-gray-100 space-y-1">
             <button
               onClick={() => {
                 navigate('/project-status');
@@ -167,6 +167,23 @@ export default function DashboardLayout() {
             >
               <Activity size={20} />
               <span>نقشه راه پروژه</span>
+            </button>
+            <button
+              onClick={() => {
+                navigate('/deploy-guide');
+                setSidebarOpen(false);
+              }}
+              className={`
+                w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+                transition-all duration-200
+                ${location.pathname === '/deploy-guide'
+                  ? `bg-gradient-to-l ${roleColor} text-white shadow-md`
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                }
+              `}
+            >
+              <Rocket size={20} />
+              <span>راهنمای Deploy</span>
             </button>
           </div>
         </nav>

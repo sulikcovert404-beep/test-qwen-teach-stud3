@@ -15,6 +15,7 @@ import ExamBuilder from './pages/ExamBuilder';
 import FlashcardsPage from './pages/FlashcardsPage';
 import StudyPlanPage from './pages/StudyPlanPage';
 import ProjectStatusPage from './pages/ProjectStatusPage';
+import DeployGuidePage from './pages/DeployGuidePage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -124,6 +125,18 @@ function AppRoutes() {
         }
       >
         <Route index element={<ProjectStatusPage />} />
+      </Route>
+
+      {/* Deploy Guide (accessible from any role) */}
+      <Route
+        path="/deploy-guide"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<DeployGuidePage />} />
       </Route>
 
       {/* Default redirect */}
