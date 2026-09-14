@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { School as SchoolIcon, Plus, Search, Filter, MoreVertical, MapPin, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { School as SchoolIcon, Plus, Search, Filter, MoreVertical, MapPin, Users, GraduationCap, CheckCircle2, Edit, Trash2, Eye } from 'lucide-react';
+import { Modal, FormField, SelectField } from '../components/Modal';
 
 const SCHOOLS_DATA = [
   { id: '1', name: 'دبیرستان شهید بهشتی', city: 'تهران', plan: 'مدرسه', teachers: 24, students: 485, status: 'active', joinDate: '۱۴۰۲/۰۶/۱۵' },
@@ -15,17 +16,82 @@ const SCHOOLS_DATA = [
 export default function SchoolsPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [schools, setSchools] = useState(SCHOOLS_DATA);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSchool, setEditingSchool] = useState<any>(null);
+  const [newSchool, setNewSchool] = useState({
+    name: '',
+    city: '',
+    plan: 'مدرسه',
+    teachers: '',
+    students: ''
+  });
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-  const filtered = SCHOOLS_DATA.filter(school => {
+  const filtered = schools.filter(school => {
     const matchesSearch = school.name.includes(search) || school.city.includes(search);
     const matchesFilter = filter === 'all' || school.status === filter;
     return matchesSearch && matchesFilter;
   });
 
-  const totalSchools = SCHOOLS_DATA.length;
-  const activeSchools = SCHOOLS_DATA.filter(s => s.status === 'active').length;
-  const totalTeachers = SCHOOLS_DATA.reduce((sum, s) => sum + s.teachers, 0);
-  const totalStudents = SCHOOLS_DATA.reduce((sum, s) => sum + s.students, 0);
+  const totalSchools = schools.length;
+  const activeSchools = schools.filter(s => s.status === 'active').length;
+  const totalTeachers = schools.reduce((sum, s) => sum + s.teachers, 0);
+  const totalStudents = schools.reduce((sum, s) => sum + s.students, 0);
+
+  const handleAddSchool = () => {
+    if (!newSchool.name || !newSchool.city) {
+      alert('لطفاً نام مدرسه و شهر را وارد کنید');
+      return;
+    }
+
+    const school = {
+      id: Date.now().toString(),
+      name: newSchool.name,
+      city: newSchool.city,
+      plan: newSchool.plan,
+      teachers: parseInt(newSchool.teachers) || 0,
+      students: parseInt(newSchool.students) || 0,
+      status: 'active' as const,
+      joinDate: new Date().toLocaleDateString('fa-IR')
+    };
+
+    setSchools([school, ...schools]);
+    setShowAddModal(false);
+    setNewSchool({ name: '', city: '', plan: 'مدرسه', teachers: '', students: '' });
+    alert('✅ مدرسه با موفقیت اضافه شد!');
+  };
+
+  const handleEditSchool = (school: any) => {
+    setEditingSchool(school);
+    setShowEditModal(true);
+    setOpenMenu(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingSchool.name || !editingSchool.city) {
+      alert('لطفاً نام مدرسه و شهر را وارد کنید');
+      return;
+    }
+    setSchools(schools.map(s => s.id === editingSchool.id ? editingSchool : s));
+    setShowEditModal(false);
+    setEditingSchool(null);
+    alert('✅ مدرسه با موفقیت ویرایش شد!');
+  };
+
+  const handleDeleteSchool = (id: string) => {
+    if (confirm('آیا از حذف این مدرسه مطمئن هستید؟')) {
+      setSchools(schools.filter(s => s.id !== id));
+      setOpenMenu(null);
+      alert('✅ مدرسه با موفقیت حذف شد!');
+    }
+  };
+
+  const handleViewSchool = (school: any) => {
+    alert(`مشاهده جزئیات: ${school.name}`);
+    setOpenMenu(null);
+  };
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto">
@@ -35,13 +101,72 @@ export default function SchoolsPage() {
           <h1 className="text-2xl font-extrabold text-navy">مدارس</h1>
           <p className="text-sm text-secondary-text mt-1">مدیریت مدارس و مستأجران پلتفرم</p>
         </div>
-        <button className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="gradient-button text-white px-5 py-2.5 rounded-xl text-sm font-bold
                          hover:bg-deep-green transition-colors shadow-lg shadow-primary-green/20
                          flex items-center gap-2">
           <Plus size={18} />
           <span>افزودن مدرسه جدید</span>
         </button>
       </div>
+
+      {/* Add School Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="افزودن مدرسه جدید">
+        <div className="space-y-4">
+          <FormField
+            label="نام مدرسه"
+            placeholder="مثلاً: دبیرستان شهید بهشتی"
+            value={newSchool.name}
+            onChange={(value) => setNewSchool({ ...newSchool, name: value })}
+            required
+          />
+          <FormField
+            label="شهر"
+            placeholder="مثلاً: تهران"
+            value={newSchool.city}
+            onChange={(value) => setNewSchool({ ...newSchool, city: value })}
+            required
+          />
+          <SelectField
+            label="طرح"
+            value={newSchool.plan}
+            onChange={(value) => setNewSchool({ ...newSchool, plan: value })}
+            options={[
+              { value: 'مدرسه', label: 'مدرسه' },
+              { value: 'سازمانی', label: 'سازمانی' }
+            ]}
+          />
+          <FormField
+            label="تعداد معلمان"
+            type="number"
+            placeholder="۰"
+            value={newSchool.teachers}
+            onChange={(value) => setNewSchool({ ...newSchool, teachers: value })}
+          />
+          <FormField
+            label="تعداد دانش‌آموزان"
+            type="number"
+            placeholder="۰"
+            value={newSchool.students}
+            onChange={(value) => setNewSchool({ ...newSchool, students: value })}
+          />
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={handleAddSchool}
+              className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+            >
+              افزودن مدرسه
+            </button>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -123,10 +248,23 @@ export default function SchoolsPage() {
                     </span>
                   </td>
                   <td className="py-4 px-5 text-sm text-secondary-text">{school.joinDate}</td>
-                  <td className="py-4 px-5">
-                    <button className="p-2 hover:bg-bg rounded-lg transition-colors">
+                  <td className="py-4 px-5 relative">
+                    <button onClick={() => setOpenMenu(openMenu === school.id ? null : school.id)} className="p-2 hover:bg-bg rounded-lg transition-colors">
                       <MoreVertical size={16} className="text-secondary-text" />
                     </button>
+                    {openMenu === school.id && (
+                      <div className="absolute top-12 left-4 bg-white rounded-xl shadow-lg border border-border py-2 z-10 min-w-[150px]">
+                        <button onClick={() => handleViewSchool(school)} className="w-full px-4 py-2 text-right text-sm text-navy hover:bg-bg flex items-center gap-2">
+                          <Eye size={14} /> مشاهده
+                        </button>
+                        <button onClick={() => handleEditSchool(school)} className="w-full px-4 py-2 text-right text-sm text-navy hover:bg-bg flex items-center gap-2">
+                          <Edit size={14} /> ویرایش
+                        </button>
+                        <button onClick={() => handleDeleteSchool(school.id)} className="w-full px-4 py-2 text-right text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                          <Trash2 size={14} /> حذف
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -153,6 +291,70 @@ export default function SchoolsPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit School Modal */}
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="ویرایش مدرسه">
+        {editingSchool && (
+          <div className="space-y-4">
+            <FormField
+              label="نام مدرسه"
+              value={editingSchool.name}
+              onChange={(value) => setEditingSchool({ ...editingSchool, name: value })}
+              required
+            />
+            <FormField
+              label="شهر"
+              value={editingSchool.city}
+              onChange={(value) => setEditingSchool({ ...editingSchool, city: value })}
+              required
+            />
+            <SelectField
+              label="طرح"
+              value={editingSchool.plan}
+              onChange={(value) => setEditingSchool({ ...editingSchool, plan: value })}
+              options={[
+                { value: 'مدرسه', label: 'مدرسه' },
+                { value: 'سازمانی', label: 'سازمانی' }
+              ]}
+            />
+            <FormField
+              label="تعداد معلمان"
+              type="number"
+              value={editingSchool.teachers.toString()}
+              onChange={(value) => setEditingSchool({ ...editingSchool, teachers: parseInt(value) || 0 })}
+            />
+            <FormField
+              label="تعداد دانش‌آموزان"
+              type="number"
+              value={editingSchool.students.toString()}
+              onChange={(value) => setEditingSchool({ ...editingSchool, students: parseInt(value) || 0 })}
+            />
+            <SelectField
+              label="وضعیت"
+              value={editingSchool.status}
+              onChange={(value) => setEditingSchool({ ...editingSchool, status: value })}
+              options={[
+                { value: 'active', label: 'فعال' },
+                { value: 'suspended', label: 'معلق' }
+              ]}
+            />
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleSaveEdit}
+                className="flex-1 gradient-button text-white py-2.5 rounded-xl text-sm font-bold hover:bg-deep-green transition-colors"
+              >
+                ذخیره تغییرات
+              </button>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 bg-bg border border-border text-navy py-2.5 rounded-xl text-sm font-medium hover:bg-hover-green transition-colors"
+              >
+                انصراف
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
